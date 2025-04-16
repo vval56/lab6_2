@@ -25,8 +25,8 @@ int check_int(int *number, char *line) {
         i++;
     }
 
-    if(*number > INT_MAX || *number < INT_MIN){
-        puts("Недопустимое значение, введите в диапозоне int");
+    if (*number > INT_MAX/10 || (*number == INT_MAX/10 && (line[i]-'0') > INT_MAX%10)) {
+        puts("Превышено максимальное значение int");
         return 0;
     }
 
@@ -47,24 +47,29 @@ int is_empty_queue(QUEUE * queue){
     return queue->size == 0;
 }
 
-void add_element_queue(QUEUE * queue, int value){
-    Node * new_node = (Node*)malloc(sizeof(Node));
+void add_element_queue(QUEUE *queue, int value) {
+    Node *new_node = (Node*)malloc(sizeof(Node));
+    if (new_node == NULL) {
+        perror("Ошибка выделения памяти");
+        exit(EXIT_FAILURE);
+    }
+    
     new_node->data = value;
     new_node->next = NULL;
     new_node->prev = queue->end;
 
-    if(is_empty_queue(queue)){
+    if (is_empty_queue(queue)) {
         queue->top = new_node;
-    }
-    else{
+    } else {
         queue->end->next = new_node;
     }
-
+    
+    queue->end = new_node;
     queue->size++;
 }
 
 int peek(QUEUE * queue) {
-    if (isEmpty(queue)) {
+    if (is_empty_queue(queue)) {
         printf("Очередь пуста!\n");
         return -1;
     }
@@ -77,7 +82,6 @@ int delete_element_queue(QUEUE * queue){
         return -1;
     }
 
-    Node * temp = queue->top;
     int value = queue->top->data;
 
     queue->top = queue->top->next;
@@ -89,7 +93,6 @@ int delete_element_queue(QUEUE * queue){
         queue->top->prev = NULL;
     }
 
-    free(temp);
     queue->size--;
 
     return value;
@@ -126,7 +129,7 @@ void input_queue(QUEUE * queue){
     do{
         int number = 0;size_t len;
 
-        printf("Значение №%d очереди", i + 1);
+        printf("Значение №%d очереди ", i + 1);
         
         if (getline(&line, &len, stdin) == -1) {
             puts("Ошибка ввода");
@@ -148,35 +151,44 @@ void input_queue(QUEUE * queue){
 
         i++;
 
-    }while(i - 1 < size);
+    }while(i < size);
 
 }
 
-void find_negative_elements(QUEUE * queue){
-    init_queue(queue);
+void free_queue(QUEUE * queue) {
+    while (!is_empty_queue(queue)) {
+        delete_element_queue(queue);
+    }
+}
 
-    Node * current = queue->top;
-    int neagative_numbers[2];
+void find_negative_elements(QUEUE *queue) {
+    input_queue(queue);
 
-    while(current != NULL || (neagative_numbers[0] < 0 && neagative_numbers[1] < 0)){
-        if(peek(queue) < 0){
-            if(neagative_numbers[0] > 0){
-                neagative_numbers[0] = peek(queue);
-            }
-            else if(neagative_numbers[1] > 0){
-                neagative_numbers[1] = peek(queue);
+    Node *current = queue->top;
+    int negative_numbers[2] = {0};  
+
+    while (current != NULL && (negative_numbers[0] >= 0 || negative_numbers[1] >= 0)) {
+        if (current->data < 0) {
+            if (negative_numbers[0] >= 0) {
+                negative_numbers[0] = current->data;
+            } else if (negative_numbers[1] >= 0) {
+                negative_numbers[1] = current->data;
             }
         }
         current = current->next;
     }
 
-    for(int i = 0; i < 2; i++){
-        if(neagative_numbers[i]){
-            printf("%d - e отрицательное число %d\n", i + 1, neagative_numbers[i]);
+    int found = 0;
+    for (int i = 0; i < 2; i++) {
+        if (negative_numbers[i] < 0) {
+            printf("%d-е отрицательное число: %d\n", i+1, negative_numbers[i]);
+            found = 1;
         }
     }
 
-    if(neagative_numbers[0] > 0 && neagative_numbers[1] > 0){
+    if (!found) {
         puts("Не нашлось отрицательных чисел");
     }
+
+    free_queue(queue);
 }

@@ -1,3 +1,6 @@
+#include "dack.h"
+#include "queue.h"
+
 // Создать очередь для целых (положительных и отрицательных) чисел. Максимальный размер
 // очереди вводится с экрана. Создать функции для ввода и вывода элементов очереди. Ввести 6
 // элементов (положительных и отрицательных). Вывести 2 первых отрицательных элемента очереди.
@@ -12,6 +15,51 @@
 
 //Могильный Владислав Александрович 16.04.2024
 
+void show_menu() {
+    puts("\nВыберите задание для выполнения:");
+    puts("1. 1-е задание");
+    puts("2. 2-е задание");
+    puts("0. Выход");
+    puts("Ваш выбор: ");
+}
+
 int main(){
+    int choice;
+    char *line = NULL;
+    size_t len = 0;
+    DACK dack;
+    QUEUE queue;
+
+    while (1) {
+        show_menu();
+
+        if (getline(&line, &len, stdin) == -1) {
+            puts("Ошибка ввода");
+            free(line);
+            return 1;
+        }
+
+        if (!check_int(&choice, line)) {
+            printf("Неверный ввод! Введите число.\n");
+            continue;
+        }
+
+        switch(choice) {
+            case 0:
+                free(line);
+                puts("Программа завершена.");
+                return 0;
+            case 1:
+                find_negative_elements(&queue);
+                break;
+            case 2:
+                find_two_negative(&dack);
+                break;
+            default:
+                printf("Неверный выбор! Допустимые значения: 0-3\n");
+        }
+    }
+
+    free(line);
     return 0;
 }
