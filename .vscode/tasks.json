@@ -9,7 +9,7 @@
                     "${workspaceFolder}/main.c",
                     "${workspaceFolder}/queue.c",
                     "${workspaceFolder}/dack.c",
-                    //"${workspaceFolder}/arithmetic_expression.c",
+                    "${workspaceFolder}/string_sum.c",
                     "-o",
                     "${workspaceFolder}/main"
             ],

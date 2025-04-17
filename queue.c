@@ -102,7 +102,7 @@ void print_queue(QUEUE * queue){
     Node * current = queue->top;
     printf("очередь размера: %d \n[", queue->size);
     while (current != NULL){
-        printf("%d", current->data);
+        printf("%d ", current->data);
         current = current->next;
     }
 
